@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ZIPFolder</title>
+  <link rel="index" href="index.html">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  pre {
+    background: #111;
+    color: #0f0;
+    padding: 15px;
+    max-height: 500px;
+    overflow: auto;
+  }
+</style>
+</head>
+<body>
+
+<h2>Open ZIP Folder</h2>
+<input type="file" id="zipInput" accept=".zip">
+
+<pre id="output">Waiting for ZIP file...</pre>
+
+<!-- JSZip library -->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<script>
+document.getElementById("zipInput").addEventListener("change", function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const output = document.getElementById("output");
+  output.textContent = "Reading ZIP file...\n\n";
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    JSZip.loadAsync(e.target.result).then(zip => {
+
+      zip.forEach((path, file) => {
+        output.textContent +=
+          "Path: " + path + "\n" +
+          "Type: " + (file.dir ? "Folder" : "File") + "\n" +
+          "Compressed: " + (file._data?.compressedSize || "N/A") + " bytes\n" +
+          "----------------------------------\n";
+      });
+
+    }).catch(err => {
+      output.textContent = "Error reading ZIP: " + err;
+    });
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+</script>
+
+</body>
+</html>
